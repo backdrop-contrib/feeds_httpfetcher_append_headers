@@ -28,14 +28,14 @@ class FeedsHTTPFetcherAppendHeadersResult extends FeedsFetcherResult {
    */
   public function getRaw() {
     feeds_include_library('http_request.inc', 'http_request');
-    module_load_include('inc', 'feeds_httpfetcher_append_headers', 'libraries/feeds_httpfetcher_append_headers_request');   
+    module_load_include('inc', 'feeds_httpfetcher_append_headers', 'libraries/feeds_httpfetcher_append_headers_request');
     $result = feeds_httpfetcher_append_headers_request_get($this->url, NULL, NULL, TRUE, $this->timeout, $this->append_headers);
     if (!in_array($result->code, array(200, 201, 202, 203, 204, 205, 206))) {
       throw new Exception(t('Download of @url failed with code !code.', array('@url' => $this->url, '!code' => $result->code)));
     }
     return $this->sanitizeRaw($result->data);
   }
-  
+
   public function getTimeout() {
     return $this->timeout;
   }
@@ -84,11 +84,11 @@ class FeedsHTTPFetcherAppendHeaders extends FeedsFetcher {
     catch (Exception $e) {
       // In case of an error, respond with a 503 Service (temporary) unavailable.
       header('HTTP/1.1 503 "Not Found"', NULL, 503);
-      drupal_exit();
+      backdrop_exit();
     }
     // Will generate the default 200 response.
     header('HTTP/1.1 200 "OK"', NULL, 200);
-    drupal_exit();
+    backdrop_exit();
   }
 
   /**
@@ -154,8 +154,8 @@ class FeedsHTTPFetcherAppendHeaders extends FeedsFetcher {
       form_set_error($form_key, t('The URL %source is invalid.', array('%source' => $values['source'])));
     }
   }
-  
-  
+
+
   public function prepareAppendHeaders($append_headers) {
     $headers = array();
     $append_headers = explode("\n", $append_headers);
@@ -163,8 +163,8 @@ class FeedsHTTPFetcherAppendHeaders extends FeedsFetcher {
       foreach ($append_headers as $header) {
         $headers[] = str_replace('|', ': ', $header);
       }
-      
+
     }
     return $headers;
-  }  
+  }
 }

@@ -33,7 +33,7 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
   }
 
   // Determine request timeout.
-  $request_timeout = !empty($timeout) ? $timeout : variable_get('http_request_timeout', 30);
+  $request_timeout = !empty($timeout) ? $timeout : settings_get('http_request_timeout', 30);
 
   if (!$username && valid_url($url, TRUE)) {
     // Handle password protected feeds.
@@ -48,7 +48,7 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
 
   // Only download and parse data if really needs refresh.
   // Based on "Last-Modified" and "If-Modified-Since".
-  $headers = array();  
+  $headers = array();
   $headers = array_merge($headers, $append_headers);
   if ($cache = cache_get('feeds_http_download_' . md5($url))) {
     $last_result = $cache->data;
@@ -79,13 +79,13 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
   $url = strtr($url, array('feed://' => 'http://', 'webcal://' => 'http://'));
 
   if ($curl) {
-    $headers[] = 'User-Agent: Drupal (+http://drupal.org/)';
+    $headers[] = 'User-Agent: Backdrop (+https://drupal.org/)';
     $result = new stdClass();
     $result->headers = array();
 
     // Parse the URL and make sure we can handle the schema.
     // cURL can only support either http:// or https://.
-    // CURLOPT_PROTOCOLS is only supported with cURL 7.19.4
+    // CURLOPT_PROTOCOLS is only supported with cURL 7.19.4.
     $uri = parse_url($url);
     if (!isset($uri['scheme'])) {
       $result->error = 'missing schema';
@@ -119,18 +119,20 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
       curl_setopt($download, CURLOPT_ENCODING, '');
       curl_setopt($download, CURLOPT_TIMEOUT, $request_timeout);
 
-      $proxy_server = variable_get('proxy_server');
+      $proxy_server = settings_get('proxy_server', '');
+      $proxy_password = settings_get('proxy_password', '');
+      $proxy_username = settings_get('proxy_username', '');
 
-      if ($proxy_server && _drupal_http_use_proxy($uri['host'])) {
+      if ($proxy_server && _backdrop_http_use_proxy($uri['host'])) {
         curl_setopt($download, CURLOPT_PROXY, $proxy_server);
-        curl_setopt($download, CURLOPT_PROXYPORT, variable_get('proxy_port', 8080));
+        curl_setopt($download, CURLOPT_PROXYPORT, settings_get('proxy_port', 8080));
 
         // Proxy user/password.
-        if ($proxy_username = variable_get('proxy_username')) {
-          $username_password = $proxy_username . ':' . variable_get('proxy_password', '');
+        if (!empty($proxy_username)) {
+          $username_password = $proxy_username . ':' . $proxy_password;
 
           curl_setopt($download, CURLOPT_PROXYUSERPWD, $username_password);
-          curl_setopt($download, CURLOPT_PROXYAUTH, variable_get('proxy_auth_method', CURLAUTH_BASIC));
+          curl_setopt($download, CURLOPT_PROXYAUTH, settings_get('proxy_auth_method', CURLAUTH_BASIC));
         }
       }
 
@@ -152,8 +154,8 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
       // When using a proxy, remove extra data from the header which is not
       // considered by CURLINFO_HEADER_SIZE (possibly cURL bug).
       // This data is only added when to HTTP header when working with a proxy.
-      // Example string added: <HTTP/1.0 200 Connection established\r\n\r\n>
-      if ($proxy_server && _drupal_http_use_proxy($uri['host'])) {
+      // Example string added: <HTTP/1.0 200 Connection established\r\n\r\n>.
+      if ($proxy_server && _backdrop_http_use_proxy($uri['host'])) {
         $http_header_break = "\r\n\r\n";
         $response = explode($http_header_break, $data);
         if (count($response) > 2) {
@@ -189,7 +191,7 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
     }
   }
   else {
-    $result = drupal_http_request($url, array('headers' => $headers, 'timeout' => $request_timeout));
+    $result = backdrop_http_request($url, array('headers' => $headers, 'timeout' => $request_timeout));
     $result->headers = isset($result->headers) ? $result->headers : array();
   }
 
