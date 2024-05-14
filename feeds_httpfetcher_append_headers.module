@@ -9,7 +9,7 @@
  * Implements hook_feeds_plugins().
  */
 function feeds_httpfetcher_append_headers_feeds_plugins() {
-  $path = backdrop_get_path('module', 'feeds_httpfetcher_append_headers') . '/plugins';
+  $path = backdrop_get_path('module', 'feeds_httpfetcher_append_headers');
   $info = array();
   $info['FeedsHTTPFetcherAppendHeaders'] = array(
     'name'        => t('Append Headers HTTP Fetcher'),
@@ -17,9 +17,19 @@ function feeds_httpfetcher_append_headers_feeds_plugins() {
     'handler' => array(
       'parent' => 'FeedsHTTPFetcher',
       'class'  => 'FeedsHTTPFetcherAppendHeaders',
-      'file'   => 'FeedsHTTPFetcherAppendHeaders.inc',
+      'file'   => 'plugins/FeedsHTTPFetcherAppendHeaders.inc',
       'path'   => $path,
     ),
   );
   return $info;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function feeds_httpfetcher_append_headers_autoload_info() {
+  return array(
+    'FeedsHTTPFetcherAppendHeaders' => 'plugins/FeedsHTTPFetcherAppendHeaders.inc',
+    'FeedsHTTPFetcherAppendHeadersResult' => 'plugins/FeedsHTTPFetcherAppendHeaders.inc',
+  );
 }

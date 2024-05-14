@@ -79,7 +79,7 @@ function feeds_httpfetcher_append_headers_request_get($url, $username = NULL, $p
   $url = strtr($url, array('feed://' => 'http://', 'webcal://' => 'http://'));
 
   if ($curl) {
-    $headers[] = 'User-Agent: Backdrop (+https://drupal.org/)';
+    $headers[] = 'User-Agent: Backdrop (+https://backdropcms.org/)';
     $result = new stdClass();
     $result->headers = array();
 
