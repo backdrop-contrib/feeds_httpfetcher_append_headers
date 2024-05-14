@@ -14,6 +14,8 @@ function feeds_httpfetcher_append_headers_feeds_plugins() {
   $info['FeedsHTTPFetcherAppendHeaders'] = array(
     'name'        => t('Append Headers HTTP Fetcher'),
     'description' => t('HTTPFetcher with support for appending request headers.'),
+    'plugin_key' => 'FeedsHTTPFetcherAppendHeaders',
+    'module' => 'feeds_httpfetcher_append_headers',
     'handler' => array(
       'parent' => 'FeedsHTTPFetcher',
       'class'  => 'FeedsHTTPFetcherAppendHeaders',
